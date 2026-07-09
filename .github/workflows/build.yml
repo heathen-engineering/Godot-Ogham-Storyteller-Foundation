@@ -1,0 +1,104 @@
+name: Build
+
+on:
+  push:
+    paths-ignore:
+      - '*.md'
+      - '.gitignore'
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: [Debug, Release]
+        config:
+          - { name: Linux, os: ubuntu-latest }
+          - { name: Windows, os: windows-latest }
+          - { name: macOS, os: macos-latest }
+
+    name: Build / ${{ matrix.config.name }} (${{ matrix.build_type }})
+    runs-on: ${{ matrix.config.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Ninja (Linux)
+        if: matrix.config.os == 'ubuntu-latest'
+        run: sudo apt-get update && sudo apt-get install -y ninja-build
+
+      - name: Install Ninja (macOS)
+        if: matrix.config.os == 'macos-latest'
+        run: brew install ninja
+
+      - name: Install Ninja (Windows)
+        if: matrix.config.os == 'windows-latest'
+        run: choco upgrade ninja
+
+      - name: Setup MSVC (Windows)
+        if: matrix.config.os == 'windows-latest'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Configure
+        shell: bash
+        run: |
+          cmake -S addons/FoundationOgham -B build -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: FoundationOgham-${{ matrix.config.name }}-${{ matrix.build_type }}
+          path: addons/FoundationOgham/bin/*
+          if-no-files-found: error
+
+  package:
+    name: Package addon
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: FoundationOgham-*
+          path: artifacts
+          merge-multiple: true
+
+      - name: Assemble addon package
+        run: |
+          mkdir -p package/addons/FoundationOgham
+          cp -r addons/FoundationOgham/CSharp package/addons/FoundationOgham/
+          cp -r addons/FoundationOgham/src package/addons/FoundationOgham/
+          cp addons/FoundationOgham/plugin.cfg package/addons/FoundationOgham/
+          cp addons/FoundationOgham/FoundationOgham.gdextension package/addons/FoundationOgham/
+          cp addons/FoundationOgham/StorytellerRegistry.gd package/addons/FoundationOgham/
+          mkdir -p package/addons/FoundationOgham/bin
+          cp artifacts/* package/addons/FoundationOgham/bin/
+          cp README.md package/addons/FoundationOgham/
+          cp LICENSE package/addons/FoundationOgham/
+          cd package && zip -r ../FoundationOgham.zip addons
+
+      - name: Upload packaged addon
+        uses: actions/upload-artifact@v4
+        with:
+          name: FoundationOgham
+          path: FoundationOgham.zip
+
+      - name: Attach to release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: FoundationOgham.zip
