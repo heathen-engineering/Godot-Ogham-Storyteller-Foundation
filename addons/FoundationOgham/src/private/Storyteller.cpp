@@ -92,6 +92,11 @@ void Storyteller::set_main_session(const String &story_tag)
     main_session_id = OghamInterop::hash_tag(story_tag);
 }
 
+int Storyteller::session_count() const
+{
+    return int(sessions.size());
+}
+
 void Storyteller::_bind_methods()
 {
     ClassDB::bind_method(D_METHOD("open_session", "story_tag", "story", "set_as_main"), &Storyteller::open_session, DEFVAL(true));

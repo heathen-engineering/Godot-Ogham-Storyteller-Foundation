@@ -22,8 +22,11 @@
 #include "OghamOption.h"
 #include "OghamSession.h"
 #include "OghamStory.h"
+#include "OghamSubsystem.h"
 #include "OghamVariables.h"
 #include "Storyteller.h"
+
+#include <gameframework/SubsystemManager.h>
 
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/core/class_db.hpp>
@@ -52,6 +55,11 @@ void initialize_foundation_ogham_module(ModuleInitializationLevel p_level)
 
     storyteller_singleton = memnew(Storyteller);
     Engine::get_singleton()->register_singleton("Storyteller", Storyteller::get_singleton());
+
+    // Real gameframework::Subsystem registration — see Godot-Game-Framework's
+    // README, "The linking model", and FoundationGameplayTags' register_types.cpp
+    // for the reference implementation this mirrors.
+    gameframework::SubsystemManager::instance().register_subsystem<OghamSubsystem>();
 }
 
 void uninitialize_foundation_ogham_module(ModuleInitializationLevel p_level)

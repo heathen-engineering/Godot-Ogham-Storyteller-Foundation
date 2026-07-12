@@ -12,7 +12,7 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  desktop:
     strategy:
       fail-fast: false
       matrix:
@@ -22,7 +22,7 @@ jobs:
           - { name: Windows, os: windows-latest }
           - { name: macOS, os: macos-latest }
 
-    name: Build / ${{ matrix.config.name }} (${{ matrix.build_type }})
+    name: Desktop / ${{ matrix.config.name }} (${{ matrix.build_type }})
     runs-on: ${{ matrix.config.os }}
 
     steps:
@@ -62,9 +62,95 @@ jobs:
           path: addons/FoundationOgham/bin/*
           if-no-files-found: error
 
+  # ── iOS: cross-compile only (device/arm64, statically linked — Godot
+  # requires GDExtensions to be statically linked on iOS). No on-runner
+  # execution, no simulator slice, no export wiring yet. ────────────────
+  ios:
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: [Debug, Release]
+
+    name: iOS (${{ matrix.build_type }})
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Configure (device, arm64)
+        run: |
+          cmake -S addons/FoundationOgham -B build-ios -G Xcode \
+            -DCMAKE_SYSTEM_NAME=iOS \
+            -DCMAKE_OSX_ARCHITECTURES=arm64 \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=13.0 \
+            -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED=NO \
+            -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED=NO \
+            -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY=""
+
+      - name: Build
+        run: cmake --build build-ios --config ${{ matrix.build_type }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: FoundationOgham-iOS-${{ matrix.build_type }}
+          # A glob, not a guessed exact path — CMake's Xcode generator nests
+          # product output under Config-iphoneos/ subdirectories.
+          path: addons/FoundationOgham/bin/**/libFoundationOgham.ios.*.arm64.a
+          if-no-files-found: warn
+
+  # ── Android: cross-compile only via NDK. ───────────────────────────────
+  android:
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: [Debug, Release]
+        abi: [arm64-v8a, armeabi-v7a, x86_64]
+
+    name: Android ${{ matrix.abi }} (${{ matrix.build_type }})
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Ninja
+        run: sudo apt-get update && sudo apt-get install -y ninja-build
+
+      - name: Install Android NDK
+        id: setup-ndk
+        uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r27c
+
+      - name: Configure
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+        run: |
+          cmake -S addons/FoundationOgham -B build-android-${{ matrix.abi }} -G Ninja \
+            -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake \
+            -DANDROID_ABI=${{ matrix.abi }} \
+            -DANDROID_PLATFORM=android-24 \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+
+      - name: Build
+        run: cmake --build build-android-${{ matrix.abi }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: FoundationOgham-Android-${{ matrix.abi }}-${{ matrix.build_type }}
+          path: addons/FoundationOgham/bin/*
+          if-no-files-found: error
+
   package:
     name: Package addon
-    needs: build
+    needs: [desktop, ios, android]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -82,8 +168,14 @@ jobs:
           mkdir -p package/addons/FoundationOgham
           cp -r addons/FoundationOgham/CSharp package/addons/FoundationOgham/
           cp -r addons/FoundationOgham/src package/addons/FoundationOgham/
+          cp -r addons/FoundationOgham/editor package/addons/FoundationOgham/
+          cp -r addons/FoundationOgham/gate package/addons/FoundationOgham/
           cp addons/FoundationOgham/plugin.cfg package/addons/FoundationOgham/
-          cp addons/FoundationOgham/FoundationOgham.gdextension package/addons/FoundationOgham/
+          # Ships inert (.gdextension.available, not .gdextension) — Godot's boot-time
+          # scan never auto-loads it; gate/heathen_gate.gd renames it to the real name
+          # once OghamEditorPlugin.gd confirms Godot-Game-Framework is present.
+          cp addons/FoundationOgham/FoundationOgham.gdextension.available package/addons/FoundationOgham/
+          cp addons/FoundationOgham/heathen_manifest.json package/addons/FoundationOgham/
           cp addons/FoundationOgham/StorytellerRegistry.gd package/addons/FoundationOgham/
           mkdir -p package/addons/FoundationOgham/bin
           cp artifacts/* package/addons/FoundationOgham/bin/

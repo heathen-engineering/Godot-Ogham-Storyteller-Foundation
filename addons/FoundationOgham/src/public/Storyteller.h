@@ -67,6 +67,10 @@ public:
     Ref<OghamSession> get_main_session() const;
     void set_main_session(const String &story_tag);
 
+    /// Number of currently-open sessions — for OghamSubsystem's debug_info(), same
+    /// role Unity's StorytellerSubsystem.GetDebugInfo() gives "Sessions".
+    int session_count() const;
+
 protected:
     static void _bind_methods();
 };

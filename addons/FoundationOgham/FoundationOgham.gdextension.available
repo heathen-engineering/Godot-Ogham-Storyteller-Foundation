@@ -1,0 +1,71 @@
+[configuration]
+entry_symbol = "foundation_ogham_init"
+compatibility_minimum = 4.6
+
+[libraries]
+
+windows.debug.x86_64   = "res://addons/FoundationOgham/bin/libFoundationOgham.windows.debug.x86_64.dll"
+windows.release.x86_64 = "res://addons/FoundationOgham/bin/libFoundationOgham.windows.release.x86_64.dll"
+
+linux.debug.x86_64   = "res://addons/FoundationOgham/bin/libFoundationOgham.linux.debug.x86_64.so"
+linux.release.x86_64 = "res://addons/FoundationOgham/bin/libFoundationOgham.linux.release.x86_64.so"
+
+macos.debug.x86_64   = "res://addons/FoundationOgham/bin/libFoundationOgham.macos.debug.x86_64.dylib"
+macos.release.x86_64 = "res://addons/FoundationOgham/bin/libFoundationOgham.macos.release.x86_64.dylib"
+
+android.debug.arm64    = "res://addons/FoundationOgham/bin/libFoundationOgham.android.debug.arm64.so"
+android.release.arm64  = "res://addons/FoundationOgham/bin/libFoundationOgham.android.release.arm64.so"
+android.debug.arm32    = "res://addons/FoundationOgham/bin/libFoundationOgham.android.debug.arm32.so"
+android.release.arm32  = "res://addons/FoundationOgham/bin/libFoundationOgham.android.release.arm32.so"
+android.debug.x86_64   = "res://addons/FoundationOgham/bin/libFoundationOgham.android.debug.x86_64.so"
+android.release.x86_64 = "res://addons/FoundationOgham/bin/libFoundationOgham.android.release.x86_64.so"
+
+; iOS GDExtensions must be statically linked, not dynamically loaded — see
+; Godot-Game-Framework's .gdextension for the full rationale. Device-only
+; (arm64) cross-compile, not yet wired into an actual iOS export.
+ios.debug.arm64   = "res://addons/FoundationOgham/bin/libFoundationOgham.ios.debug.arm64.a"
+ios.release.arm64 = "res://addons/FoundationOgham/bin/libFoundationOgham.ios.release.arm64.a"
+
+; OghamSubsystem (a real gameframework::Subsystem) needs the shared
+; gameframework runtime loaded so it shares SubsystemManager::instance()
+; with FoundationGameFramework and every other gem — see that repo's
+; README, "The linking model". Declared explicitly so this doesn't depend
+; on extension load order. Not declared for iOS, which links statically.
+[dependencies]
+
+windows.debug.x86_64 = {
+  "res://addons/FoundationGameFramework/bin/libgameframework.windows.debug.x86_64.dll": ""
+}
+windows.release.x86_64 = {
+  "res://addons/FoundationGameFramework/bin/libgameframework.windows.release.x86_64.dll": ""
+}
+linux.debug.x86_64 = {
+  "res://addons/FoundationGameFramework/bin/libgameframework.linux.debug.x86_64.so": ""
+}
+linux.release.x86_64 = {
+  "res://addons/FoundationGameFramework/bin/libgameframework.linux.release.x86_64.so": ""
+}
+macos.debug.x86_64 = {
+  "res://addons/FoundationGameFramework/bin/libgameframework.macos.debug.x86_64.dylib": ""
+}
+macos.release.x86_64 = {
+  "res://addons/FoundationGameFramework/bin/libgameframework.macos.release.x86_64.dylib": ""
+}
+android.debug.arm64 = {
+  "res://addons/FoundationGameFramework/bin/libgameframework.android.debug.arm64.so": ""
+}
+android.release.arm64 = {
+  "res://addons/FoundationGameFramework/bin/libgameframework.android.release.arm64.so": ""
+}
+android.debug.arm32 = {
+  "res://addons/FoundationGameFramework/bin/libgameframework.android.debug.arm32.so": ""
+}
+android.release.arm32 = {
+  "res://addons/FoundationGameFramework/bin/libgameframework.android.release.arm32.so": ""
+}
+android.debug.x86_64 = {
+  "res://addons/FoundationGameFramework/bin/libgameframework.android.debug.x86_64.so": ""
+}
+android.release.x86_64 = {
+  "res://addons/FoundationGameFramework/bin/libgameframework.android.release.x86_64.so": ""
+}
