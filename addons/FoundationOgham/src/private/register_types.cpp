@@ -25,6 +25,18 @@
 #include "OghamSubsystem.h"
 #include "OghamVariables.h"
 #include "Storyteller.h"
+#include "editor/OghamContentKeyCompactEditor.h"
+#include "editor/OghamContentKeyPopup.h"
+#include "editor/OghamDocument.h"
+#include "editor/OghamGraphNode.h"
+#include "editor/OghamGraphView.h"
+#include "editor/OghamKeyLabelsPopup.h"
+#include "editor/OghamLabelPickerPopup.h"
+#include "editor/OghamManifestIO.h"
+#include "editor/OghamOperationPopup.h"
+#include "editor/OghamOptionPopup.h"
+#include "editor/OghamPopupBase.h"
+#include "editor/OghamTargetPickerPopup.h"
 
 #include <gameframework/SubsystemManager.h>
 
@@ -38,32 +50,66 @@ static Storyteller *storyteller_singleton = nullptr;
 
 void initialize_foundation_ogham_module(ModuleInitializationLevel p_level)
 {
-    if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE)
-        return;
+    if (p_level == MODULE_INITIALIZATION_LEVEL_SCENE)
+    {
+        ClassDB::register_class<OghamContentKey>();
+        ClassDB::register_class<OghamOption>();
+        ClassDB::register_class<OghamEntry>();
+        ClassDB::register_class<OghamStory>();
+        ClassDB::register_class<OghamSession>();
+        ClassDB::register_class<OghamInlineLinkParser>();
+        ClassDB::register_class<OghamVariables>();
+        ClassDB::register_class<Storyteller>();
 
-    ClassDB::register_class<OghamContentKey>();
-    ClassDB::register_class<OghamOption>();
-    ClassDB::register_class<OghamEntry>();
-    ClassDB::register_class<OghamStory>();
-    ClassDB::register_class<OghamSession>();
-    ClassDB::register_class<OghamInlineLinkParser>();
-    ClassDB::register_class<OghamVariables>();
-    ClassDB::register_class<Storyteller>();
+        ogham_variables_singleton = memnew(OghamVariables);
+        Engine::get_singleton()->register_singleton("OghamVariables", OghamVariables::get_singleton());
 
-    ogham_variables_singleton = memnew(OghamVariables);
-    Engine::get_singleton()->register_singleton("OghamVariables", OghamVariables::get_singleton());
+        storyteller_singleton = memnew(Storyteller);
+        Engine::get_singleton()->register_singleton("Storyteller", Storyteller::get_singleton());
 
-    storyteller_singleton = memnew(Storyteller);
-    Engine::get_singleton()->register_singleton("Storyteller", Storyteller::get_singleton());
-
-    // Real gameframework::Subsystem registration — see Godot-Game-Framework's
-    // README, "The linking model", and FoundationGameplayTags' register_types.cpp
-    // for the reference implementation this mirrors.
-    gameframework::SubsystemManager::instance().register_subsystem<OghamSubsystem>();
+        // Real gameframework::Subsystem registration — see Godot-Game-Framework's
+        // README, "The linking model", and FoundationGameplayTags' register_types.cpp
+        // for the reference implementation this mirrors.
+        gameframework::SubsystemManager::instance().register_subsystem<OghamSubsystem>();
+    }
+    else if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR)
+    {
+        // Editor-tools-only classes — the Ogham Storyteller document model and
+        // node-graph editor. Godot never initializes
+        // MODULE_INITIALIZATION_LEVEL_EDITOR in exported game builds, so this
+        // stays entirely out of shipped games automatically. Deliberately
+        // excludes OghamInspectorPlugin — the GDScript
+        // editor/OghamInspectorPlugin.gd is what's actually wired up; the C++
+        // port here was never instantiated by anything, so it isn't promoted.
+        ClassDB::register_class<OghamDocument>();
+        ClassDB::register_class<OghamManifestIO>();
+        ClassDB::register_class<OghamGraphNode>();
+        ClassDB::register_class<OghamPopupBase>();
+        ClassDB::register_class<OghamOperationPopup>();
+        ClassDB::register_class<OghamContentKeyPopup>();
+        ClassDB::register_class<OghamOptionPopup>();
+        ClassDB::register_class<OghamTargetPickerPopup>();
+        ClassDB::register_class<OghamKeyLabelsPopup>();
+        ClassDB::register_class<OghamLabelPickerPopup>();
+        ClassDB::register_class<OghamGraphView>();
+        ClassDB::register_class<OghamContentKeyCompactEditor>();
+    }
 }
 
 void uninitialize_foundation_ogham_module(ModuleInitializationLevel p_level)
 {
+    if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR)
+    {
+        // OghamGraphView::_swatch_icon_cache holds static-duration
+        // Ref<ImageTexture> — must be cleared before this extension unloads
+        // and RenderingServer tears down, or the cached Refs' destructors
+        // run against an already-gone RenderingServer ("Parameter
+        // RenderingServer::get_singleton() is null", confirmed via a
+        // headless --editor --quit run).
+        OghamGraphView::clear_swatch_icon_cache();
+        return;
+    }
+
     if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE)
         return;
 
