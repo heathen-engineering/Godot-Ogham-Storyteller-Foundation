@@ -140,7 +140,17 @@ static func _fetch_and_enable(host: Node, status_label: Label) -> bool:
 
     status_label.text = "Enabling Extension Resolver..."
     if Engine.is_editor_hint():
-        EditorInterface.get_resource_filesystem().scan()
+        # scan() only STARTS an async rescan — enabling the plugin
+        # immediately after, without waiting for Godot to actually finish
+        # registering Extension Resolver's freshly-extracted class_name
+        # scripts (ExtensionResolverCore, ExtensionResolverSettingsTab),
+        # produces "Identifier not declared in the current scope" parse
+        # errors and a failed _enter_tree() — confirmed the hard way during
+        # a real cold-install test. Awaiting script_classes_updated blocks
+        # until that registration has actually happened.
+        var fs := EditorInterface.get_resource_filesystem()
+        fs.scan()
+        await fs.script_classes_updated
         EditorInterface.set_plugin_enabled(EXTENSION_RESOLVER_ID, true)
 
     return true
@@ -215,6 +225,8 @@ static func _extract_zip(zip_bytes: PackedByteArray, dependency_id: String) -> b
 
     reader.close()
     DirAccess.remove_absolute(ProjectSettings.globalize_path(tmp_path))
-    if Engine.is_editor_hint():
-        EditorInterface.get_resource_filesystem().scan()
+    # Filesystem scan happens once, in _fetch_and_enable() right after this
+    # returns — not here too — since that call site also needs to AWAIT the
+    # scan actually finishing (script_classes_updated) before enabling the
+    # plugin, and doing the scan here as well would just be redundant.
     return true
