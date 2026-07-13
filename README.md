@@ -30,6 +30,10 @@ A tag-driven narrative/dialogue graph system for Godot 4. Nodes are identified b
 
 - Godot **4.6** or compatible
 - [godot-cpp](https://github.com/godotengine/godot-cpp), checked out locally, for building from source
+- [Godot-Game-Framework](https://github.com/heathen-engineering/Godot-Game-Framework), **enabled in the
+  consuming project** — a runtime dependency, not a build-time one. If it's missing, enabling this
+  plugin walks you through fetching it automatically via
+  [Extension Resolver for Godot](https://github.com/heathen-engineering/Godot-Extension-Resolver).
 - [GameplayTags Foundation](https://github.com/heathen-engineering/Godot-GameplayTags-Foundation) and [Lexicon Foundation](https://github.com/heathen-engineering/Godot-Lexicon-Localisation-Foundation) **enabled in the consuming project** — see [Dependency model](#dependency-model) below. Not required at Ogham's own build time.
 
 ---
