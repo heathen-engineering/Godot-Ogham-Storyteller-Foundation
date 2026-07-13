@@ -192,10 +192,10 @@ jobs:
           cp -r addons/FoundationOgham/gate package/addons/FoundationOgham/
           cp addons/FoundationOgham/plugin.cfg package/addons/FoundationOgham/
           # Ships inert (.gdextension.available, not .gdextension) — Godot's boot-time
-          # scan never auto-loads it; gate/heathen_gate.gd renames it to the real name
-          # once OghamEditorPlugin.gd confirms Godot-Game-Framework is present.
+          # scan never auto-loads it; gate/extension_resolver_gate.gd renames it to the
+          # real name once OghamEditorPlugin.gd confirms Godot-Game-Framework is present.
           cp addons/FoundationOgham/FoundationOgham.gdextension.available package/addons/FoundationOgham/
-          cp addons/FoundationOgham/heathen_manifest.json package/addons/FoundationOgham/
+          cp addons/FoundationOgham/extension.manifest.json package/addons/FoundationOgham/
           cp addons/FoundationOgham/StorytellerRegistry.gd package/addons/FoundationOgham/
           mkdir -p package/addons/FoundationOgham/bin
           cp artifacts/* package/addons/FoundationOgham/bin/

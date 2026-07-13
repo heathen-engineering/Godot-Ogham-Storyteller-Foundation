@@ -1,0 +1,22 @@
+{
+    "schema_version": 1,
+    "id": "FoundationOgham",
+    "display_name": "Foundation for Ogham Storyteller",
+    "version": "1.0.0",
+    "repository_url": "https://github.com/heathen-engineering/Godot-Ogham-Storyteller-Foundation",
+    "source": {
+        "type": "github_release",
+        "repo": "heathen-engineering/Godot-Ogham-Storyteller-Foundation"
+    },
+    "gated": true,
+    "dependencies": [
+        {
+            "id": "FoundationGameFramework",
+            "min_version": "1.0.0",
+            "source": {
+                "type": "github_release",
+                "repo": "heathen-engineering/Godot-Game-Framework"
+            }
+        }
+    ]
+}

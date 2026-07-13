@@ -11,8 +11,10 @@ extends EditorPlugin
 ##
 ## Gated: FoundationOgham.gdextension (the native library everything here
 ## ultimately depends on — Storyteller, OghamVariables, the Subsystem
-## integration, all of it) ships inert until heathen_gate confirms
-## Godot-Game-Framework is actually installed. See gate/heathen_gate.gd and
+## integration, all of it) ships inert until Extension Resolver confirms
+## Godot-Game-Framework is actually installed (at a satisfying version —
+## real version-guarding, not just presence, since the migration off
+## heathen_gate.gd). See gate/extension_resolver_gate.gd and
 ## Godot-GameplayTags-Foundation's GameplayTagsEditorPlugin.gd (the
 ## reference implementation this mirrors) for the full mechanism and why.
 ##
@@ -25,13 +27,13 @@ extends EditorPlugin
 ## via ClassDB.instantiate() below for the same reason — it's a native class
 ## reached by string, never a static GDScript type reference in this file.
 
-const HeathenGate = preload("res://addons/FoundationOgham/gate/heathen_gate.gd")
+const Gate = preload("res://addons/FoundationOgham/gate/extension_resolver_gate.gd")
 
 var _inspector_plugin: Object
 var _graph_dock: EditorDock
 
 func _enter_tree() -> void:
-	if HeathenGate.ensure_unlocked(self, "FoundationOgham", _activate_tooling):
+	if Gate.ensure_unlocked(self, "FoundationOgham", _activate_tooling):
 		_activate_tooling()
 
 # NOT named _build() — EditorPlugin already declares a virtual _build() -> bool
