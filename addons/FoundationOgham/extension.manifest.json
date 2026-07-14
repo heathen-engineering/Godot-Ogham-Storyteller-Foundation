@@ -2,13 +2,13 @@
     "schema_version": 2,
     "id": "FoundationOgham",
     "display_name": "Foundation for Ogham Storyteller",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "repository_url": "https://github.com/heathen-engineering/Godot-Ogham-Storyteller-Foundation",
     "documentation_url": "https://heathen.group/kb/ogham-welcome/",
-    "support_url": "https://github.com/heathen-engineering/Godot-Ogham-Storyteller-Foundation/issues",
+    "support_url": "https://discord.gg/xmtRNkW7hW",
     "license_url": "https://github.com/heathen-engineering/Godot-Ogham-Storyteller-Foundation/blob/main/LICENSE",
     "publisher": {
-        "name": "Heathen Engineering Limited",
+        "name": "Heathen Group",
         "url": "https://heathen.group"
     },
     "description": "The Ogham Storyteller narrative graph runtime — entries/options/content keys, session state machine with Fork routing, and inline @Token text markup. Composes with GameplayTags and Lexicon at runtime with no compile-time dependency on either. Ported from Unity-Ogham-Storyteller-Foundation.",

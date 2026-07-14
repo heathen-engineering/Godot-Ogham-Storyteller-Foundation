@@ -17,6 +17,7 @@
 
 #include "editor/OghamGraphView.h"
 #include "editor/OghamContentKeyPopup.h"
+#include "editor/OghamForkValidator.h"
 #include "editor/OghamKeyLabelsPopup.h"
 #include "editor/OghamLabelPickerPopup.h"
 #include "editor/OghamManifestIO.h"
@@ -1329,6 +1330,18 @@ void OghamGraphView::_rebuild_graph(bool show_progress)
     _tag_to_node_name.clear();
 
     Array visible_items = _gather_visible_items();
+
+    // Recomputed once per rebuild, across every visible entry regardless of
+    // which loaded file it came from — matches Unity's OghamCanvas.RecomputeForkValidation,
+    // which runs over the whole canvas's _nodes, not per-asset.
+    Array all_entries;
+    for (int i = 0; i < visible_items.size(); i++)
+    {
+        Dictionary item = visible_items[i];
+        all_entries.push_back(item["entry"]);
+    }
+    _invalid_fork_tags = OghamForkValidator::find_cyclic_forks(all_entries);
+
     _rebuild_build_next_batch(visible_items, 0, show_progress, generation);
 }
 
@@ -1366,6 +1379,7 @@ void OghamGraphView::_rebuild_build_next_batch(Array visible_items, int cursor, 
         annotations["assigned_label_ids"] = doc->get_assigned_label_ids(tag);
         annotations["border_color"] = node_ann["border_color"];
         annotations["tab_flags"] = node_ann["tab_flags"];
+        annotations["fork_invalid"] = _invalid_fork_tags.has(tag);
         node->setup(entry, expanded, node_ann["incoming"], annotations);
         _tag_to_node_name[tag] = String(node->get_name());
 

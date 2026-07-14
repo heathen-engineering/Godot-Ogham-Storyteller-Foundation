@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <cmath>
 
+#include <godot_cpp/classes/color_rect.hpp>
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/classes/image.hpp>
 #include <godot_cpp/classes/input_event_mouse_button.hpp>
@@ -56,6 +57,7 @@ void OghamGraphNode::setup(const Dictionary &entry, const Dictionary &expanded, 
     assigned_label_ids = annotations.get("assigned_label_ids", Array());
     border_color = annotations.get("border_color", Color(0, 0, 0, 0));
     tab_flags = annotations.get("tab_flags", Dictionary());
+    fork_invalid = annotations.get("fork_invalid", false);
     rebuild();
 }
 
@@ -214,6 +216,23 @@ void OghamGraphNode::_rebuild_titlebar(bool is_fork, const Color &title_bg)
 
     Color text_color = _adaptive_text_color(title_bg);
     String tag = entry_data.get("tag", "(unnamed)");
+
+    // Fork mode indicator — amber stripe on the header's left edge, red when
+    // this Fork sits on a routing cycle (OghamForkValidator via OghamGraphView).
+    // Matches Unity's OghamCanvas rendering (EditorGUI.DrawRect on the header),
+    // just as a real child Control since Godot's GraphNode doesn't offer the
+    // same custom-draw-over-header hook.
+    if (is_fork)
+    {
+        ColorRect *fork_stripe = memnew(ColorRect);
+        fork_stripe->set_color(fork_invalid ? Color(0.90, 0.20, 0.20) : Color(1.0, 0.72, 0.15));
+        fork_stripe->set_custom_minimum_size(Vector2(3, 0));
+        fork_stripe->set_v_size_flags(Control::SIZE_EXPAND_FILL);
+        fork_stripe->set_tooltip_text(fork_invalid
+            ? "This Fork is part of a routing cycle — every path out of a Fork must resolve to a node or end the conversation."
+            : "Fork node");
+        hbox->add_child(fork_stripe);
+    }
 
     Button *tag_label = memnew(Button);
     tag_label->set_text(_truncate_front(tag, int(MAX_TITLE_DISPLAY_CHARS)));

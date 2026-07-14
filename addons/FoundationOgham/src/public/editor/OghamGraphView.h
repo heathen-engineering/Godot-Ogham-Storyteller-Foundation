@@ -92,6 +92,13 @@ private:
 
     Dictionary _tag_to_node_name;
 
+    // Tags of every Fork entry currently on a fork-to-fork routing cycle —
+    // recomputed once per _rebuild_graph() call (OghamForkValidator::find_cyclic_forks(),
+    // across every visible entry regardless of which loaded file it came from,
+    // matching Unity's canvas-wide check), read per-node while building
+    // annotations in _rebuild_build_next_batch() rather than recomputed per node.
+    PackedStringArray _invalid_fork_tags;
+
     int _rebuild_generation = 0;
     bool _built = false;
 

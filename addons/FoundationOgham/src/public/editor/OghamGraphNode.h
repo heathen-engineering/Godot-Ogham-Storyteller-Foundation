@@ -74,6 +74,7 @@ private:
     Array assigned_label_ids;
     Color border_color = Color(0, 0, 0, 0);
     Dictionary tab_flags; // {option tag -> fill Color}
+    bool fork_invalid = false; // this Fork sits on a fork-to-fork routing cycle (OghamForkValidator)
     std::vector<int> option_port_indices_;
 
     static std::unordered_map<std::string, Ref<ImageTexture>> icon_cache_;
