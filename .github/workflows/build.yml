@@ -2,9 +2,8 @@ name: Build
 
 on:
   push:
-    paths-ignore:
-      - '*.md'
-      - '.gitignore'
+    tags:
+      - "v*"
   pull_request:
   workflow_dispatch:
 
