@@ -37,6 +37,7 @@
 
 #include "editor/OghamDocument.h"
 #include "editor/OghamGraphNode.h"
+#include "editor/OghamPlayWindow.h"
 
 using namespace godot;
 
@@ -91,6 +92,8 @@ private:
     Control *_loading_panel = nullptr;
 
     Dictionary _tag_to_node_name;
+
+    OghamPlayWindow *_play_window = nullptr; // lazy — created on first Play click
 
     // Tags of every Fork entry currently on a fork-to-fork routing cycle —
     // recomputed once per _rebuild_graph() call (OghamForkValidator::find_cyclic_forks(),
@@ -232,6 +235,7 @@ private:
     static Vector2i _mouse_screen_pos();
 
     void _on_key_labels_pressed();
+    void _on_play_pressed();
     void _on_content_key_clicked(OghamGraphNode *node, int index);
     void _on_content_key_committed(Ref<OghamDocument> doc, String tag, int index, Dictionary key_copy);
     void _on_entry_operation_clicked(OghamGraphNode *node, int index);

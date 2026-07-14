@@ -62,6 +62,10 @@ public:
     // -- construction / persistence --
     void load_from_json(const String &json_text);
     Error save(const String &path);
+    // Same serialization save() writes to disk, returned as text instead — lets a
+    // caller (OghamPlayWindow) test the live in-memory document, including unsaved
+    // edits, without forcing a save first.
+    String to_json_text() const;
 
     // -- entries --
     Array get_entries() const;

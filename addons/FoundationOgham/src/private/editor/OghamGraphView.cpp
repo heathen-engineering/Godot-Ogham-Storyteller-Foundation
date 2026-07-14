@@ -140,6 +140,20 @@ void OghamGraphView::_build_toolbar(VBoxContainer *root_vbox)
     _path_label->set_text("(no active file)");
     _path_label->set_tooltip_text("The active file — where Add Entry/Add Fork create new nodes. Click a filename in the left panel to change it.");
     toolbar->add_child(_path_label);
+
+    Control *toolbar_spacer = memnew(Control);
+    toolbar_spacer->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+    toolbar_spacer->set_mouse_filter(Control::MOUSE_FILTER_IGNORE);
+    toolbar->add_child(toolbar_spacer);
+
+    Button *play_btn = memnew(Button);
+    // Plain ASCII, not a Unicode glyph — same encoding-risk reasoning already
+    // documented elsewhere in this codebase for exotic characters in Button.text.
+    play_btn->set_text("Play");
+    play_btn->set_tooltip_text("Test-play the currently loaded stories (including unsaved edits) without running the game.");
+    play_btn->connect("pressed", callable_mp(this, &OghamGraphView::_on_play_pressed));
+    toolbar->add_child(play_btn);
+
     root_vbox->add_child(toolbar);
 }
 
@@ -1747,6 +1761,16 @@ void OghamGraphView::_on_key_labels_pressed()
     OghamKeyLabelsPopup *popup = memnew(OghamKeyLabelsPopup);
     add_child(popup);
     popup->open(_mouse_screen_pos(), callable_mp(this, &OghamGraphView::_rebuild_graph).bind(false));
+}
+
+void OghamGraphView::_on_play_pressed()
+{
+    if (_play_window == nullptr)
+    {
+        _play_window = memnew(OghamPlayWindow);
+        add_child(_play_window);
+    }
+    _play_window->open(_all_story_data);
 }
 
 void OghamGraphView::_on_content_key_clicked(OghamGraphNode *node, int index)

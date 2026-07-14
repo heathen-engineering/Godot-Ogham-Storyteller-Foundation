@@ -35,6 +35,7 @@
 #include "editor/OghamManifestIO.h"
 #include "editor/OghamOperationPopup.h"
 #include "editor/OghamOptionPopup.h"
+#include "editor/OghamPlayWindow.h"
 #include "editor/OghamPopupBase.h"
 #include "editor/OghamTargetPickerPopup.h"
 
@@ -92,6 +93,7 @@ void initialize_foundation_ogham_module(ModuleInitializationLevel p_level)
         ClassDB::register_class<OghamKeyLabelsPopup>();
         ClassDB::register_class<OghamLabelPickerPopup>();
         ClassDB::register_class<OghamGraphView>();
+        ClassDB::register_class<OghamPlayWindow>();
         ClassDB::register_class<OghamContentKeyCompactEditor>();
     }
 }

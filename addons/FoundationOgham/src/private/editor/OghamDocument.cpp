@@ -87,6 +87,11 @@ Error OghamDocument::save(const String &path)
     return OK;
 }
 
+String OghamDocument::to_json_text() const
+{
+    return ogham_editor_doc_to_json(doc);
+}
+
 Array OghamDocument::get_entries() const
 {
     Array result;
@@ -576,6 +581,7 @@ void OghamDocument::set_label_assigned(const String &tag, int id, bool assigned)
 void OghamDocument::_bind_methods()
 {
     ClassDB::bind_method(D_METHOD("save", "path"), &OghamDocument::save);
+    ClassDB::bind_method(D_METHOD("to_json_text"), &OghamDocument::to_json_text);
 
     ClassDB::bind_method(D_METHOD("get_entries"), &OghamDocument::get_entries);
     ClassDB::bind_method(D_METHOD("find_entry", "tag"), &OghamDocument::find_entry);
