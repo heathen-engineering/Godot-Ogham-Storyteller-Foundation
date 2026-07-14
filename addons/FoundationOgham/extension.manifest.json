@@ -2,7 +2,7 @@
     "schema_version": 2,
     "id": "FoundationOgham",
     "display_name": "Foundation for Ogham Storyteller",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "repository_url": "https://github.com/heathen-engineering/Godot-Ogham-Storyteller-Foundation",
     "documentation_url": "https://heathen.group/kb/ogham-welcome/",
     "support_url": "https://discord.gg/xmtRNkW7hW",

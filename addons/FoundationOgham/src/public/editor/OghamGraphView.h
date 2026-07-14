@@ -36,7 +36,9 @@
 #include <godot_cpp/variant/packed_string_array.hpp>
 
 #include "editor/OghamDocument.h"
+#include "editor/OghamExportWindow.h"
 #include "editor/OghamGraphNode.h"
+#include "editor/OghamNotesWindow.h"
 #include "editor/OghamPlayWindow.h"
 
 using namespace godot;
@@ -94,6 +96,7 @@ private:
     Dictionary _tag_to_node_name;
 
     OghamPlayWindow *_play_window = nullptr; // lazy — created on first Play click
+    OghamExportWindow *_export_window = nullptr; // lazy — created on first Export click
 
     // Tags of every Fork entry currently on a fork-to-fork routing cycle —
     // recomputed once per _rebuild_graph() call (OghamForkValidator::find_cyclic_forks(),
@@ -236,6 +239,7 @@ private:
 
     void _on_key_labels_pressed();
     void _on_play_pressed();
+    void _on_export_pressed();
     void _on_content_key_clicked(OghamGraphNode *node, int index);
     void _on_content_key_committed(Ref<OghamDocument> doc, String tag, int index, Dictionary key_copy);
     void _on_entry_operation_clicked(OghamGraphNode *node, int index);
@@ -257,6 +261,8 @@ private:
     void _menu_action_toggle_tab(Ref<OghamDocument> doc, String tag, String opt_tag, bool is_tab);
     void _menu_action_set_highlight(Ref<OghamDocument> doc, String tag, Color hl_color);
     void _menu_action_open_labels(Ref<OghamDocument> doc, String tag);
+    void _menu_action_open_notes(Ref<OghamDocument> doc, String tag);
+    void _on_notes_committed(String notes, Ref<OghamDocument> doc, String tag);
     void _menu_action_delete_node(Ref<OghamDocument> doc, String tag);
     void _run_menu_action(int pressed_id, Dictionary id_actions, PopupMenu *menu);
 

@@ -154,6 +154,12 @@ void OghamGraphView::_build_toolbar(VBoxContainer *root_vbox)
     play_btn->connect("pressed", callable_mp(this, &OghamGraphView::_on_play_pressed));
     toolbar->add_child(play_btn);
 
+    Button *export_btn = memnew(Button);
+    export_btn->set_text("Export VO Script...");
+    export_btn->set_tooltip_text("Export dialogue/narration content to a VO script (CSV/Markdown/HTML/Plain Text), optionally filtered by Content Label.");
+    export_btn->connect("pressed", callable_mp(this, &OghamGraphView::_on_export_pressed));
+    toolbar->add_child(export_btn);
+
     root_vbox->add_child(toolbar);
 }
 
@@ -1773,6 +1779,16 @@ void OghamGraphView::_on_play_pressed()
     _play_window->open(_all_story_data);
 }
 
+void OghamGraphView::_on_export_pressed()
+{
+    if (_export_window == nullptr)
+    {
+        _export_window = memnew(OghamExportWindow);
+        add_child(_export_window);
+    }
+    _export_window->open(_all_story_data);
+}
+
 void OghamGraphView::_on_content_key_clicked(OghamGraphNode *node, int index)
 {
     Array content_keys = node->get_entry_data().get("contentKeys", Array());
@@ -2013,6 +2029,10 @@ void OghamGraphView::_on_node_context_menu_requested(OghamGraphNode *node)
     menu->add_item("Labels...", labels_id);
     id_actions[labels_id] = callable_mp(this, &OghamGraphView::_menu_action_open_labels).bind(doc, tag);
 
+    int notes_id = next_id++;
+    menu->add_item("Director Notes...", notes_id);
+    id_actions[notes_id] = callable_mp(this, &OghamGraphView::_menu_action_open_notes).bind(doc, tag);
+
     menu->add_separator();
     int delete_id = next_id++;
     menu->add_item("Delete Node", delete_id);
@@ -2100,6 +2120,20 @@ void OghamGraphView::_menu_action_delete_node(Ref<OghamDocument> doc, String tag
 {
     doc->remove_entry(tag);
     _rebuild_graph();
+}
+
+void OghamGraphView::_menu_action_open_notes(Ref<OghamDocument> doc, String tag)
+{
+    OghamNotesWindow *popup = memnew(OghamNotesWindow);
+    add_child(popup);
+    popup->open(doc->get_director_notes(tag), _mouse_screen_pos(), callable_mp(this, &OghamGraphView::_on_notes_committed).bind(doc, tag));
+}
+
+// on_commit.call(notes) + .bind(doc, tag) above -> invoked as (notes, doc, tag),
+// matching Callable::bind()'s append-after-call-args order.
+void OghamGraphView::_on_notes_committed(String notes, Ref<OghamDocument> doc, String tag)
+{
+    doc->set_director_notes(tag, notes);
 }
 
 void OghamGraphView::_bind_methods()

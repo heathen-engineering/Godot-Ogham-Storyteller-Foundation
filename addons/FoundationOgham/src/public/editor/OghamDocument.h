@@ -111,6 +111,8 @@ public:
     void set_section_expanded(const String &tag, const String &section, bool expanded);
     Color get_highlight_color(const String &tag) const;
     void set_highlight_color(const String &tag, const Color &color);
+    String get_director_notes(const String &tag) const;
+    void set_director_notes(const String &tag, const String &notes);
     Array get_tab_flag_options(const String &tag) const;
     bool is_tab_flag(const String &tag, const String &option_tag) const;
     void set_tab_flag(const String &tag, const String &option_tag, bool is_tab);

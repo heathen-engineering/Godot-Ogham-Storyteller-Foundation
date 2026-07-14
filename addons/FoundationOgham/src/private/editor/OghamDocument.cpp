@@ -421,6 +421,27 @@ void OghamDocument::set_highlight_color(const String &tag, const Color &color)
     entry->node_meta.highlight_color_hex = hex_from_color(color);
 }
 
+String OghamDocument::get_director_notes(const String &tag) const
+{
+    const std::string tag_std = to_std(tag);
+    auto it = doc.tag_index.find(tag_std);
+    if (it == doc.tag_index.end())
+        return String();
+    return String(doc.entries[it->second].node_meta.extra.get("directorNotes", ""));
+}
+
+void OghamDocument::set_director_notes(const String &tag, const String &notes)
+{
+    OghamEditorEntry *entry = find_entry_mut(tag);
+    if (entry == nullptr)
+        return;
+    entry->node_meta.exists = true;
+    if (notes.is_empty())
+        entry->node_meta.extra.erase("directorNotes");
+    else
+        entry->node_meta.extra["directorNotes"] = notes;
+}
+
 Array OghamDocument::get_tab_flag_options(const String &tag) const
 {
     Array result;
@@ -614,6 +635,8 @@ void OghamDocument::_bind_methods()
     ClassDB::bind_method(D_METHOD("set_section_expanded", "tag", "section", "expanded"), &OghamDocument::set_section_expanded);
     ClassDB::bind_method(D_METHOD("get_highlight_color", "tag"), &OghamDocument::get_highlight_color);
     ClassDB::bind_method(D_METHOD("set_highlight_color", "tag", "color"), &OghamDocument::set_highlight_color);
+    ClassDB::bind_method(D_METHOD("get_director_notes", "tag"), &OghamDocument::get_director_notes);
+    ClassDB::bind_method(D_METHOD("set_director_notes", "tag", "notes"), &OghamDocument::set_director_notes);
     ClassDB::bind_method(D_METHOD("get_tab_flag_options", "tag"), &OghamDocument::get_tab_flag_options);
     ClassDB::bind_method(D_METHOD("is_tab_flag", "tag", "option_tag"), &OghamDocument::is_tab_flag);
     ClassDB::bind_method(D_METHOD("set_tab_flag", "tag", "option_tag", "is_tab"), &OghamDocument::set_tab_flag);
