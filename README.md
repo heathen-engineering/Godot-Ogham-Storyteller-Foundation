@@ -4,7 +4,7 @@
 ![Maintained](https://img.shields.io/badge/Maintained%3F-yes-green?style=flat-square)
 ![Godot](https://img.shields.io/badge/Godot-4.6%20%2B-%23478CBF?style=flat-square&logo=godotengine&logoColor=white)
 
-A tag-driven narrative/dialogue graph system for Godot 4. Nodes are identified by dot-path `GameplayTag`s, exactly like every other Heathen Foundation extension — Ogham has no identifier scheme, condition system, or state store of its own; it is entirely composed from [GameplayTags Foundation](https://github.com/heathen-engineering/Godot-GameplayTags-Foundation) and [Lexicon Foundation](https://github.com/heathen-engineering/Godot-Lexicon-Localisation-Foundation).
+A tag-driven narrative/dialogue graph system for Godot 4. Nodes are identified by dot-path `GameplayTag`s, exactly like every other Heathen Foundation extension. Ogham has no identifier scheme, condition system, or state store of its own; it is entirely composed from [GameplayTags Foundation](https://github.com/heathen-engineering/Godot-GameplayTags-Foundation) and [Lexicon Foundation](https://github.com/heathen-engineering/Godot-Lexicon-Localisation-Foundation).
 
 - **License:** Apache 2.0
 - **Origin:** Heathen Group
@@ -12,7 +12,7 @@ A tag-driven narrative/dialogue graph system for Godot 4. Nodes are identified b
 
 > [!TIP]
 > **Looking for the easiest way to install?**
-> Copy `addons/FoundationOgham/` straight into your project's `addons/` folder — there's no external package manager step. See [Install](#install) below.
+> Copy `addons/FoundationOgham/` straight into your project's `addons/` folder. There's no external package manager step. See [Install](#install) below.
 
 ---
 
@@ -31,10 +31,16 @@ A tag-driven narrative/dialogue graph system for Godot 4. Nodes are identified b
 - Godot **4.6** or compatible
 - [godot-cpp](https://github.com/godotengine/godot-cpp), checked out locally, for building from source
 - [Godot-Game-Framework](https://github.com/heathen-engineering/Godot-Game-Framework), **enabled in the
-  consuming project** — a runtime dependency, not a build-time one. If it's missing, enabling this
+  consuming project**. This is a runtime dependency, not a build-time one. If it's missing, enabling this
   plugin walks you through fetching it automatically via
   [Extension Resolver for Godot](https://github.com/heathen-engineering/Godot-Extension-Resolver).
-- [GameplayTags Foundation](https://github.com/heathen-engineering/Godot-GameplayTags-Foundation) and [Lexicon Foundation](https://github.com/heathen-engineering/Godot-Lexicon-Localisation-Foundation) **enabled in the consuming project** — see [Dependency model](#dependency-model) below. Not required at Ogham's own build time.
+- [GameplayTags Foundation](https://github.com/heathen-engineering/Godot-GameplayTags-Foundation) and [Lexicon Foundation](https://github.com/heathen-engineering/Godot-Lexicon-Localisation-Foundation) **enabled in the consuming project**, see [Dependency model](#dependency-model) below. Not required at Ogham's own build time.
+
+---
+
+## Support
+
+For general questions, help, and troubleshooting, join our [Discord](https://discord.gg/xmtRNkW7hW). Thousands of developers are there and can often help faster than waiting on a maintainer. Please use [GitHub Issues](https://github.com/heathen-engineering/Godot-Ogham-Storyteller-Foundation/issues) for a confirmed bug or a feature request that needs tracking, not general support questions.
 
 ---
 
@@ -56,21 +62,21 @@ Learn more or explore other ways to support @ [heathen.group/kb](https://heathen
 | `OghamEntry` | A `Resource` node in the story graph: content slots, entry operations, options |
 | `OghamOption` | A `Resource` choice on an entry: target, guard conditions, side-effect operations |
 | `OghamContentKey` | A `Resource` content slot (text/image/sprite/audio/packed scene), Localised/Literal/Invariant like Lexicon fields |
-| `OghamStory` | A `Resource` immutable story definition — a flat list of entries plus a lazily-built tag/child index |
-| `OghamSession` | A `RefCounted` state machine — one playthrough: narrative state, choice history, current entry |
-| `Storyteller` | Engine singleton — the global entry point, one session per open story tag |
-| `OghamInlineLinkParser` | Static utility — parses `[text](Ogham://Tag)` links and `**bold**`/`*italic*` markup |
-| `OghamVariables` | Engine singleton — resolves `@Token(Tag.Path, args...)` text interpolation |
+| `OghamStory` | A `Resource` immutable story definition: a flat list of entries plus a lazily-built tag/child index |
+| `OghamSession` | A `RefCounted` state machine, one playthrough: narrative state, choice history, current entry |
+| `Storyteller` | Engine singleton, the global entry point, one session per open story tag |
+| `OghamInlineLinkParser` | Static utility that parses `[text](Ogham://Tag)` links and `**bold**`/`*italic*` markup |
+| `OghamVariables` | Engine singleton that resolves `@Token(Tag.Path, args...)` text interpolation |
 
 ### Ogham has no logic of its own
 
-Every guard on an `OghamOption` **is** a `GameplayTagCondition`; every side effect on an `OghamEntry`/`OghamOption` **is** a `GameplayTagOperation`; the narrative state an `OghamSession` carries **is** a `GameplayTagCollection`. Ogham calls `GameplayTagCondition.evaluate_all()` and `GameplayTagOperation.apply()` directly — it doesn't reimplement condition/operation logic in any form. This mirrors Unity's actual architecture exactly (confirmed by reading `OghamSession`/`OghamStoryBuilder` source): Ogham is a graph and a state machine wrapped around the GameplayTags gem's types, nothing more.
+Every guard on an `OghamOption` **is** a `GameplayTagCondition`; every side effect on an `OghamEntry`/`OghamOption` **is** a `GameplayTagOperation`; the narrative state an `OghamSession` carries **is** a `GameplayTagCollection`. Ogham calls `GameplayTagCondition.evaluate_all()` and `GameplayTagOperation.apply()` directly. It doesn't reimplement condition/operation logic in any form. This mirrors Unity's actual architecture exactly (confirmed by reading `OghamSession`/`OghamStoryBuilder` source): Ogham is a graph and a state machine wrapped around the GameplayTags gem's types, nothing more.
 
 ### Dependency model
 
-Ogham has **no C++ compile-time dependency** on GameplayTags Foundation or Lexicon Foundation — each is a separately loaded GDExtension `.so`/`.dll`, and cross-extension calls go through Godot's `Variant`/`Object` API (`Engine.get_singleton(...)`, `ClassDB.instantiate(...)`, `object->call(...)`), exactly the boundary the C# facades already use. This is deliberate, not a shortcut: real cross-`.so` C++ linking between independently-versioned GDExtensions is fragile (build-order, ABI, load-order). The Variant boundary is what GDExtension actually guarantees is stable.
+Ogham has **no C++ compile-time dependency** on GameplayTags Foundation or Lexicon Foundation. Each is a separately loaded GDExtension `.so`/`.dll`, and cross-extension calls go through Godot's `Variant`/`Object` API (`Engine.get_singleton(...)`, `ClassDB.instantiate(...)`, `object->call(...)`), exactly the boundary the C# facades already use. This is deliberate, not a shortcut: real cross-`.so` C++ linking between independently-versioned GDExtensions is fragile (build-order, ABI, load-order). The Variant boundary is what GDExtension actually guarantees is stable.
 
-Practical effect: `addons/FoundationOgham/CMakeLists.txt` only needs `GODOT_CPP_PATH` — no `GODOT_XXHASH_PATH`, no GameplayTags/Lexicon source paths. At **runtime**, though, Ogham genuinely needs both extensions enabled in the project — every hash, every condition/operation, every localised string resolves through them. `Array` fields that hold `GameplayTagCondition`/`GameplayTagOperation`/`LexiconText` instances are typed generically (`Array` + a `PROPERTY_HINT_ARRAY_TYPE`/`PROPERTY_HINT_RESOURCE_TYPE` string, not a C++ template argument) so the Inspector still filters correctly without a compile-time class reference.
+Practical effect: `addons/FoundationOgham/CMakeLists.txt` only needs `GODOT_CPP_PATH`. No `GODOT_XXHASH_PATH`, no GameplayTags/Lexicon source paths. At **runtime**, though, Ogham genuinely needs both extensions enabled in the project. Every hash, every condition/operation, every localised string resolves through them. `Array` fields that hold `GameplayTagCondition`/`GameplayTagOperation`/`LexiconText` instances are typed generically (`Array` + a `PROPERTY_HINT_ARRAY_TYPE`/`PROPERTY_HINT_RESOURCE_TYPE` string, not a C++ template argument) so the Inspector still filters correctly without a compile-time class reference.
 
 ---
 
@@ -121,8 +127,8 @@ Output lands in `addons/FoundationOgham/bin/`.
 | Field | Description |
 |-------|-------------|
 | `entries[].tag` | The entry's dot-path identity |
-| `entries[].mode` | `"Content"` (default, shown to the player) or `"Fork"` (silent routing node — see below) |
-| `entries[].contentKeys[]` | `{type, mode, key, path, sub}` — `type` is `Text`/`Image`/`Sprite`/`Audio`/`Prefab` (accepted as an alias for `PackedScene`); `mode`/`key` follow the same Localised/Literal/Invariant convention as Lexicon; `path`/`sub` are used for asset entries (a `res://` path, optionally a sub-resource name) |
+| `entries[].mode` | `"Content"` (default, shown to the player) or `"Fork"` (silent routing node, see below) |
+| `entries[].contentKeys[]` | `{type, mode, key, path, sub}`. `type` is `Text`/`Image`/`Sprite`/`Audio`/`Prefab` (accepted as an alias for `PackedScene`); `mode`/`key` follow the same Localised/Literal/Invariant convention as Lexicon; `path`/`sub` are used for asset entries (a `res://` path, optionally a sub-resource name) |
 | `entries[].entryOperations[]` | `GameplayTagOperation` DTOs (`tag`, `arithmetic`, `value`, `valueTag`, `valueType`, `conditions`) applied on entry, before display |
 | `entries[].options[].tag` | The option's dot-path identity |
 | `entries[].options[].targetTag` | The entry to navigate to; omit/empty to close the conversation |
@@ -138,9 +144,9 @@ Every tag referenced by an entry or option (including option targets) is registe
 
 ## Usage overview
 
-### Fork nodes — silent routing
+### Fork nodes: silent routing
 
-An entry with `mode == Fork` is never shown to the player and never recorded in history. `OghamSession` evaluates its options as routes (in order) and immediately takes the first whose conditions pass, applying that route's operations and looping — this is how Ogham expresses "if state X, go to A, else go to B" without a dedicated branch-node type. A cycle between forks is detected at runtime (a safety net behind editor-time validation) and closes the session with an error rather than hanging.
+An entry with `mode == Fork` is never shown to the player and never recorded in history. `OghamSession` evaluates its options as routes (in order) and immediately takes the first whose conditions pass, applying that route's operations and looping. This is how Ogham expresses "if state X, go to A, else go to B" without a dedicated branch-node type. A cycle between forks is detected at runtime (a safety net behind editor-time validation) and closes the session with an error rather than hanging.
 
 ### Playing a story
 
@@ -177,7 +183,7 @@ var bbcode := OghamInlineLinkParser.to_bbcode(interpolated)
 rich_text_label.text = bbcode # RichTextLabel with bbcode_enabled = true
 ```
 
-**C#** — every type above has a matching wrapper class in `Heathen.Ogham` (`OghamEntry`, `OghamOption`, `OghamContentKey`, `OghamStory`, `OghamSession`, `Storyteller`, `OghamInlineLinkParser`, `OghamVariables`) so C# code never touches `Engine.GetSingleton`/`Variant.Call` directly. See the `CSharp/` folder.
+**C#**: every type above has a matching wrapper class in `Heathen.Ogham` (`OghamEntry`, `OghamOption`, `OghamContentKey`, `OghamStory`, `OghamSession`, `Storyteller`, `OghamInlineLinkParser`, `OghamVariables`) so C# code never touches `Engine.GetSingleton`/`Variant.Call` directly. See the `CSharp/` folder.
 
 ---
 
@@ -198,7 +204,7 @@ rich_text_label.text = bbcode # RichTextLabel with bbcode_enabled = true
 | `is_option_active(tag)` / `get_option_text(tag)` | Option queries |
 | `get_history()` | `Array[Dictionary{entry_id, selected_option}]`, append-only |
 | `snapshot(name)` / `restore(dict)` | Save/load |
-| `entered(entry_tag)` / `choice(option_tag)` / `closed` *(signals)* | — |
+| `entered(entry_tag)` / `choice(option_tag)` / `closed` *(signals)* | N/A |
 
 ### `Storyteller` (engine singleton)
 
@@ -206,7 +212,7 @@ rich_text_label.text = bbcode # RichTextLabel with bbcode_enabled = true
 |--------|-------------|
 | `open_session(story_tag, story, set_as_main = true)` | Returns the existing session for `story_tag` if one is open, else creates one |
 | `get_session(story_tag)` / `has_session(story_tag)` / `forget_session(story_tag)` | Session lookup/lifecycle |
-| `get_main_session()` / `set_main_session(story_tag)` | The "current/focused" session — first-opened by default |
+| `get_main_session()` / `set_main_session(story_tag)` | The "current/focused" session, first-opened by default |
 
 ### `OghamStory` (`Resource`)
 
@@ -229,16 +235,24 @@ rich_text_label.text = bbcode # RichTextLabel with bbcode_enabled = true
 
 ## Editor tooling
 
-Enable the plugin (Project Settings > Plugins) to get a compact `OghamContentKey` Inspector editor: which fields are even shown depends on Type+Mode (only `key_or_value` for Text content; `asset_path`/`asset_sub_name` for Sprite/Image/Audio/PackedScene in Literal/Invariant mode; a Lexicon key picker instead, when Localised and Lexicon Foundation's plugin is also enabled) — mirrors Unity's `OghamEntryDrawer`/`OghamKeyEditWindow` intent that showing every field flat invites authoring mistakes. `OghamOption.target_entry_path` also gets GameplayTags Foundation's tag-picker, when that plugin is enabled.
+Enable the plugin (Project Settings > Plugins) to get:
 
-The full GraphEdit-based node authoring editor (create/edit/delete entries, options, and content keys on a canvas, writing back to `.ogham` JSON directly) lives in the commercial Toolkit for Ogham Storyteller extension, not this Foundation — see that addon's own README for details.
+- **Compact `OghamContentKey` Inspector editor**: which fields are even shown depends on Type+Mode (only `key_or_value` for Text content; `asset_path`/`asset_sub_name` for Sprite/Image/Audio/PackedScene in Literal/Invariant mode; a Lexicon key picker instead, when Localised and Lexicon Foundation's plugin is also enabled). Mirrors Unity's `OghamEntryDrawer`/`OghamKeyEditWindow` intent that showing every field flat invites authoring mistakes. `OghamOption.target_entry_path` also gets GameplayTags Foundation's tag-picker, when that plugin is enabled.
+- **A full GraphEdit-based node authoring editor**: create, edit, and delete entries, options, and content keys on a canvas, writing back to `.ogham` JSON directly. Includes search and filter, a Tree view alternative to the graph canvas, and automatic layout.
+- **Fork-cycle validation**: a Fork node participating in a routing cycle is flagged directly on the graph canvas (a colored node stripe), rather than only failing at runtime.
+- **In-editor dialogue playtester**: run a story from any entry against your live, unsaved edits, without needing to launch the game.
+- **Voice-over script export**: CSV, Markdown, HTML, or plain text, with real Content-Label field filtering so a specific character's lines can be exported on their own.
+
+## Toolkit for Ogham Storyteller
+
+Available to [GitHub Sponsors](https://github.com/sponsors/heathen-engineering), Toolkit extends Foundation's editor tooling further. See that addon's own README for details.
 
 ## Not (yet) ported
 
-- **Presentation-layer adapters** — Unity's `OghamTemplateSpawner` (prefab instancing per content key) and `StorytellerInspector` (no-code UnityEvent bridge) are Unity scene/Inspector-specific; the Godot-native equivalents (a Node instancing `PackedScene`s, a Node exposing `signal`s wired in the editor) are a deliberate fresh design, not a code port, and aren't included yet.
-- **Windowed asset streaming** — Unity's `OghamAssetStreamer` (reference-counted N-hop-lookahead asset preloading via `LexiconRegistry.AcquireAssetByGuidAsync`) isn't ported. `OghamContentKey.resolve_asset()` loads synchronously via `ResourceLoader` today, same simplification Lexicon Foundation itself makes.
+- **Presentation-layer adapters.** Unity's `OghamTemplateSpawner` (prefab instancing per content key) and `StorytellerInspector` (no-code UnityEvent bridge) are Unity scene/Inspector-specific. The Godot-native equivalents (a Node instancing `PackedScene`s, a Node exposing `signal`s wired in the editor) are a deliberate fresh design, not a code port, and aren't included yet.
+- **Windowed asset streaming.** Unity's `OghamAssetStreamer` (reference-counted N-hop-lookahead asset preloading via `LexiconRegistry.AcquireAssetByGuidAsync`) isn't ported. `OghamContentKey.resolve_asset()` loads synchronously via `ResourceLoader` today, same simplification Lexicon Foundation itself makes.
 - **Alias pins and inline-link auto-synthesis** (turning a lone `[text](Ogham://Tag)` content key into a real `OghamOption` automatically) are deferred.
-- **ECS/Burst state snapshots** — Unity's `#if UNITY_ENTITIES` narrative-state snapshot has no Godot equivalent need, same reasoning as GameplayTags Foundation's `NativeIntervalMap`.
+- **ECS/Burst state snapshots.** Unity's `#if UNITY_ENTITIES` narrative-state snapshot has no Godot equivalent need, same reasoning as GameplayTags Foundation's `NativeIntervalMap`.
 
 ## License
 

@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Community Support (Discord)
+    url: https://discord.gg/xmtRNkW7hW
+    about: For general questions, "how do I..." help, and troubleshooting, join the Discord. Thousands of developers are there and can often help faster than waiting on a maintainer. Use a GitHub issue instead for a confirmed bug or a feature request that needs tracking.
