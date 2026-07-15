@@ -113,7 +113,7 @@ static func _show_dialog(host: Node, addon_id: String, retry: Callable) -> void:
 
 static func _fetch_and_enable(host: Node, status_label: Label) -> bool:
     status_label.text = "Looking up latest release of Extension Resolver..."
-    var release := await _get_json(host, GITHUB_API_ROOT + EXTENSION_RESOLVER_REPO + "/releases/latest")
+    var release: Variant = await _get_json(host, GITHUB_API_ROOT + EXTENSION_RESOLVER_REPO + "/releases/latest")
     if release == null:
         return false
 
