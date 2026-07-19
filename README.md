@@ -19,7 +19,7 @@ A tag-driven narrative/dialogue graph system for Godot 4. Nodes are identified b
 ## 🛠 Also Available For
 
 [![O3DE](https://img.shields.io/badge/O3DE-25.10%20%2B-%2300AEEF?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0xMiAxTDEgNy40djkuMkwxMiAyM2wxMS02LjRWNy40TDEyIDF6bTkuMSAxNC45TDExLjUgMjEuM2wtOC42LTYuNFY4LjFsOC42LTYuNCA5LjEgNi40djYuOHpNMTEuNSA0LjZMMi45IDkuNnY0LjhsOC42IDUuMSA4LjYtNS4xVjkuNmwtOC42LTUuMHoiLz48L3N2Zz4=)](https://github.com/heathen-engineering/O3DE-Ogham-Storytelling-Foundation)
-[![Unity](https://img.shields.io/badge/Unity-6000%20%2B-black?style=for-the-badge&logo=unity&logoColor=white)](https://github.com/heathen-engineering/Unity-Ogham-Storyteller-Foundation)
+[![Unity](https://img.shields.io/badge/Unity-6000%20%2B-%23313131?style=for-the-badge&logo=unity&logoColor=white)](https://github.com/heathen-engineering/Unity-Ogham-Storyteller-Foundation)
 
 > [!NOTE]
 > This Godot port treats [Unity-Ogham-Storyteller-Foundation](https://github.com/heathen-engineering/Unity-Ogham-Storyteller-Foundation) as the gold-standard reference. The `.ogham` JSON schema, the fork-routing/history/ReturnTo state machine, and the inline-link/`@Token` markup are ported from it directly.
